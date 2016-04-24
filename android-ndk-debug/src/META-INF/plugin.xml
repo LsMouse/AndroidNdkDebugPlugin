@@ -1,0 +1,77 @@
+<!--
+  ~ Copyright (C) 2014 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<idea-plugin version="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <id>com.android.tools.ndk</id>
+  <name>Android NDK Support</name>
+  <version>1.0</version>
+  <vendor>Google</vendor>
+  <depends>org.jetbrains.android</depends>
+
+  <xi:include href="/META-INF/CidrPlugin.xml" xpointer="xpointer(/idea-plugin/*)"/>
+
+  <description>Provides Android NDK support</description>
+  <idea-version since-build="141.175"/>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <projectService serviceInterface="com.jetbrains.cidr.lang.workspace.OCWorkspaceManager"
+                    serviceImplementation="com.android.tools.ndk.GradleWorkspaceManager"/>
+    <gotoDeclarationHandler implementation="com.android.tools.ndk.jni.JniGotoDeclarationHandler"/>
+    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.android.tools.ndk.jni.JniRelatedItemMarkerProvider"/>
+    <codeInsight.lineMarkerProvider language="ObjectiveC" implementationClass="com.android.tools.ndk.jni.JniRelatedItemMarkerProvider"/>
+    <renamePsiElementProcessor implementation="com.android.tools.ndk.jni.JniRenameProcessor"/>
+
+    <optionsApplicabilityFilter implementation="com.jetbrains.cidr.settings.OCOptionsApplicabilityFilter"/>
+    <findUsagesHandlerFactory implementation="com.android.tools.ndk.jni.JniFindUsagesHandlerFactory"/>
+    <implicitUsageProvider implementation="com.android.tools.ndk.jni.JniImplicitUsageProvider"/>
+    <localInspection language="JAVA" shortName="JniMissingFunction"
+                     groupName="Android"
+                     displayName="Missing JNI function"
+                     enabledByDefault="true" level="ERROR"
+                     implementationClass="com.android.tools.ndk.jni.JniMissingFunctionInspection" />
+
+    <configurationType implementation="com.android.tools.ndk.run.AndroidNativeRunConfigurationType"/>
+    <programRunner implementation="com.android.tools.ndk.run.AndroidNativeDebugRunner" order="first"/>
+    <editorNotificationProvider implementation="com.android.tools.ndk.editors.ExperimentalNdkSupportNotificationProvider"/>
+    <editorNotificationProvider implementation="com.android.tools.ndk.editors.NewCppSourceNotificationProvider"/>
+    <lang.documentationProvider language="ObjectiveC" implementationClass="com.android.tools.ndk.documentation.DoxygenDocumentationProvider"/>
+  </extensions>
+
+  <project-components>
+    <component>
+      <implementation-class>com.android.tools.ndk.GradleWorkspace</implementation-class>
+      <loadForDefaultProject/>
+    </component>
+  </project-components>
+
+  <extensions defaultExtensionNs="cidr.lang">
+    <newFileHelperProvider implementation="com.android.tools.ndk.NewNativeFileHelperProvider"/>
+    <languageKindHelper implementation="com.android.tools.ndk.GradleLanguageKindCalculatorHelper"/>
+  </extensions>
+  <actions>
+    <group id="CPP.NewGroup.After">
+      <action id="CPP.NewCppFile" class="com.jetbrains.cidr.lang.actions.newFile.OCNewSourceAction"/>
+      <action id="CPP.NewHeaderFile" class="com.jetbrains.cidr.lang.actions.newFile.OCNewHeaderFileAction"/>
+      <separator/>
+      <add-to-group group-id="CIDR.Lang.NewGroup" anchor="last"/>
+    </group>
+  </actions>
+
+  <extensions defaultExtensionNs="cidr.debugger">
+    <backendConsoleInjectionHelper implementation="com.jetbrains.cidr.execution.debugger.OCBackendConsoleInjectionHelper"/>
+    <languageSupportFactory implementation="com.android.tools.ndk.run.LanguageSupportFactory"/>
+  </extensions>
+
+</idea-plugin>
